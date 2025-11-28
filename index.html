@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>@giodev/logger – Web playground</title>
+        <style>
+            :root {
+                --bg: #070b16;
+                --panel: #0f172a;
+                --accent: #7c3aed;
+                --accent-soft: #22d3ee;
+                --text: #e2e8f0;
+                --muted: #94a3b8;
+                --danger: #f87171;
+                --warn: #facc15;
+                --ok: #34d399;
+                font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+            }
+            body {
+                margin: 0;
+                background: radial-gradient(circle at 18% 20%, #0b1224, #070b16);
+                color: var(--text);
+                min-height: 100vh;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 32px;
+                width: 100%;
+                box-sizing: border-box;
+            }
+            .shell {
+                width: min(1200px, 100%);
+                background: linear-gradient(180deg, #0f172a, #0b1324);
+                border: 1px solid rgba(255, 255, 255, 0.05);
+                border-radius: 22px;
+                box-shadow: 0 24px 70px rgba(0, 0, 0, 0.55);
+                overflow: hidden;
+            }
+            header {
+                padding: 22px 28px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+                background: linear-gradient(90deg, rgba(124, 58, 237, 0.2), rgba(34, 211, 238, 0.1));
+            }
+            h1 {
+                margin: 0;
+                font-size: 22px;
+                letter-spacing: 0.3px;
+            }
+            .badge p {
+                padding: 6px 10px;
+                border-radius: 999px;
+                background: rgba(124, 58, 237, 0.18);
+                color: var(--text);
+                font-weight: 600;
+                font-size: 12px;
+                border: 1px solid rgba(124, 58, 237, 0.4);
+            }
+            main {
+                display: grid;
+                grid-template-columns: 1.1fr 0.9fr;
+                gap: 0;
+            }
+            .left,
+            .right {
+                padding: 22px 28px 28px;
+            }
+            .section-title {
+                margin: 0 0 10px;
+                font-size: 13px;
+                color: var(--muted);
+                letter-spacing: 0.28em;
+                text-transform: uppercase;
+            }
+            .controls {
+                display: grid;
+                gap: 12px;
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                margin-bottom: 18px;
+            }
+            button {
+                padding: 13px;
+                border: 1px solid rgba(255, 255, 255, 0.06);
+                background: linear-gradient(180deg, #111827, #0b1220);
+                color: var(--text);
+                border-radius: 10px;
+                cursor: pointer;
+                transition: transform 140ms ease, box-shadow 140ms ease, border-color 160ms ease,
+                    background 160ms ease;
+                text-align: left;
+                letter-spacing: 0.2px;
+            }
+            button:hover {
+                transform: translateY(-1px);
+                border-color: rgba(124, 58, 237, 0.8);
+                box-shadow: 0 10px 26px rgba(124, 58, 237, 0.2);
+                background: linear-gradient(180deg, #131c2d, #0c1423);
+            }
+            button:active {
+                transform: translateY(0);
+            }
+            .danger {
+                border-color: rgba(248, 113, 113, 0.6);
+                color: var(--danger);
+            }
+            .warn {
+                border-color: rgba(250, 204, 21, 0.6);
+                color: var(--warn);
+            }
+            .ok {
+                border-color: rgba(52, 211, 153, 0.6);
+                color: var(--ok);
+            }
+            .panel {
+                background: radial-gradient(circle at 25% 20%, rgba(124, 58, 237, 0.06), #0b1220);
+                border: 1px solid rgba(255, 255, 255, 0.05);
+                border-radius: 12px;
+                padding: 16px 18px;
+                min-height: 140px;
+                box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+            }
+            .panel + .panel {
+                margin-top: 12px;
+            }
+            .logs {
+                height: 150px;
+                overflow: auto;
+                font-family: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+                font-size: 13px;
+                line-height: 1.5;
+                color: #cbd5e1;
+                white-space: pre-wrap;
+                word-break: break-word;
+            }
+            .row {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 12px;
+            }
+            label {
+                display: block;
+                font-size: 12px;
+                color: var(--muted);
+                margin-bottom: 6px;
+            }
+            input {
+                width: 100%;
+                padding: 10px 12px;
+                border-radius: 10px;
+                border: 1px solid #334155;
+                background: #111827;
+                color: var(--text);
+            }
+            select {
+                width: 100%;
+                padding: 11px 12px;
+                border-radius: 10px;
+                border: 1px solid #334155;
+                background: #111827;
+                color: var(--text);
+            }
+            .muted {
+                color: var(--muted);
+            }
+            .pill {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                padding: 6px 10px;
+                border-radius: 999px;
+                background: #0c1526;
+                border: 1px solid rgba(255, 255, 255, 0.07);
+                font-size: 12px;
+                color: var(--muted);
+                margin-right: 6px;
+            }
+            .pill strong {
+                color: var(--text);
+                letter-spacing: 0.2px;
+            }
+            .header-meta {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+                margin-top: 8px;
+            }
+            .metric-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+                gap: 10px;
+            }
+            .toast-stack {
+                position: fixed;
+                bottom: 24px;
+                left: 24px;
+                display: grid;
+                gap: 10px;
+                z-index: 20;
+            }
+            .toast {
+                min-width: 260px;
+                padding: 12px 14px;
+                border-radius: 12px;
+                background: rgba(248, 113, 113, 0.12);
+                border: 1px solid rgba(248, 113, 113, 0.4);
+                box-shadow: 0 10px 40px rgba(0, 0, 0, 0.45);
+                color: var(--text);
+                backdrop-filter: blur(4px);
+                animation: slide-in-up 160ms ease, fade-out 200ms ease 3.5s forwards;
+            }
+            .toast strong {
+                display: block;
+                margin-bottom: 4px;
+                color: var(--danger);
+            }
+            @keyframes slide-in-up {
+                from {
+                    opacity: 0;
+                    transform: translateY(10px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+            @keyframes fade-out {
+                to {
+                    opacity: 0;
+                    transform: translateY(6px);
+                }
+            }
+            @media (max-width: 900px) {
+                main {
+                    grid-template-columns: 1fr;
+                }
+                .row {
+                    grid-template-columns: 1fr;
+                }
+            }
+        </style>
+      <script type="module" crossorigin src="/assets/index-CWpxw2Oj.js"></script>
+    </head>
+    <body>
+        <div class="shell">
+            <header>
+                <div>
+                    <h1>@giodev/logger – Browser playground</h1>
+                    <div class="header-meta">
+                        <div class="pill">
+                            <span>Dispatcher</span>
+                            <strong>sync</strong>
+                        </div>
+                        <div class="pill">
+                            <span>Transports</span>
+                            <strong>console + memory</strong>
+                        </div>
+                        <div class="pill" id="min-level-pill">
+                            <span>Min level</span>
+                            <strong>debug</strong>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <span class="badge">
+                        <p>Live logging ready</p>
+                        <p>Look at the web console</p>
+                    </span>
+                </div>
+            </header>
+            <main>
+                <section class="left">
+                    <p class="section-title">Settings</p>
+                    <div class="row" style="margin-bottom: 12px">
+                        <div>
+                            <label for="min-level">Min level filter</label>
+                            <select id="min-level">
+                                <option value="debug">Debug</option>
+                                <option value="informational">Info</option>
+                                <option value="notice">Notice</option>
+                                <option value="warning">Warning</option>
+                                <option value="error">Error</option>
+                                <option value="critical">Critical</option>
+                                <option value="alert">Alert</option>
+                                <option value="emergency">Emergency</option>
+                            </select>
+                        </div>
+                    </div>
+                    <p class="section-title">Actions · Errors</p>
+                    <div class="controls">
+                        <button id="btn-emergency" class="danger">Emergency (Error)</button>
+                        <button id="btn-alert" class="danger">Alert (Error)</button>
+                        <button id="btn-critical" class="danger">Critical (Error)</button>
+                        <button id="btn-error-throw" class="danger">Error (Error)</button>
+                    </div>
+                    <p class="section-title" style="margin-top: 10px">Actions · Messages</p>
+                    <div class="controls">
+                        <button id="btn-emergency-msg" class="danger">Emergency (message)</button>
+                        <button id="btn-alert-msg" class="danger">Alert (message)</button>
+                        <button id="btn-critical-msg" class="danger">Critical (message)</button>
+                        <button id="btn-error" class="danger">Error (message)</button>
+                        <button id="btn-warn" class="warn">Warning</button>
+                        <button id="btn-notice">Notice</button>
+                        <button id="btn-info" class="ok">Info</button>
+                        <button id="btn-debug">Debug</button>
+                    </div>
+                </section>
+                <section class="right">
+                    <p class="section-title">Live metrics</p>
+                    <div id="metrics" class="panel">No events yet.</div>
+                    <p class="section-title" style="margin-top: 14px">
+                        MemoryTransport snapshot
+                    </p>
+                    <div id="logs" class="panel logs"></div>
+                </section>
+            </main>
+        </div>
+        <div id="toasts" class="toast-stack" aria-live="polite"></div>
+    </body>
+</html>
